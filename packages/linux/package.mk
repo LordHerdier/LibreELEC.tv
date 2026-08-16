@@ -179,6 +179,13 @@ pre_make_target() {
 
     cp -a $(get_build_dir intel-ucode)/intel-ucode ${PKG_BUILD}/external-firmware
 
+    # custom VBT dump for a specific host (Lenovo 317E) whose Comet Lake
+    # iGPU loses its ACPI OpRegion VBT when passed through via VFIO -
+    # i915 is builtin on this platform so it can't be reloaded later with
+    # a modprobe.d override, the firmware must be compiled in. Paired
+    # with the i915.vbt_firmware=i915-vbt-lenovo317e.bin cmdline param.
+    cp -a ${PKG_DIR}/firmware/i915-vbt-lenovo317e.bin ${PKG_BUILD}/external-firmware
+
     FW_LIST="$(find ${PKG_BUILD}/external-firmware \( -type f -o -type l \) \( -iname '*.bin' -o -iname '*.fw' -o -path '*/intel-ucode/*' \) | sed 's|.*external-firmware/||' | sort | xargs)"
 
     ${PKG_BUILD}/scripts/config --set-str CONFIG_EXTRA_FIRMWARE "${FW_LIST}"
